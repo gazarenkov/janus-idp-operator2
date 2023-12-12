@@ -1,0 +1,44 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.mod'
+
+    - name: Lint
+      run: make lint
+
+    - name: Test
+      run: make test
+
+  container-image-build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        engine: [docker, podman]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+
+      - name: ${{ matrix.engine }}-build
+        run: make ${{ matrix.engine }}-build
